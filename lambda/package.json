@@ -1,0 +1,10 @@
+{
+  "dependencies": {
+    "node-fetch": "^2.6.1",
+    "whatwg-url": "^8.7.0",
+    "webidl-conversions": "^6.1.0",
+    "tr46": "^2.1.0",
+    "lodash": "^4.17.21"
+  },
+  "type": "module"
+}
