@@ -10,7 +10,7 @@ api.get("/", (c) => {
 
 api.get("/getLastDeployment", async (c) => {
   const response = await renderPlugin(
-    c.env.RENDER_SERVICE_ID,
+    c.env.RENDER_SERVICE_IDS,
     c.env.RENDER_API_KEY
   );
   return c.json({ response: response });

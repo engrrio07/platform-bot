@@ -26,7 +26,7 @@ export const handler = async (event, context) => {
         },
         messages: [
           {
-            contentType: "PlainText",
+            contentType: "SSML",
             content: response.message,
           },
         ],

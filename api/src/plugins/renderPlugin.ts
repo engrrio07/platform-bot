@@ -1,48 +1,65 @@
 export const renderPlugin = async (
-  RENDER_SERVICE_ID: string,
+  RENDER_SERVICE_IDS: string[],
   RENDER_API_KEY: string
 ) => {
-  if (!(RENDER_SERVICE_ID && RENDER_API_KEY))
-    return "Missing Render API key or service ID.";
+  if (!RENDER_API_KEY || !RENDER_SERVICE_IDS || !RENDER_SERVICE_IDS.length)
+    return "Missing Render API key or service IDs.";
 
   const apiKey = RENDER_API_KEY;
-  const serviceId = RENDER_SERVICE_ID;
-
   try {
-    // Make the API call to Render to fetch the last deployment
-    const response = await fetch(
-      `https://api.render.com/v1/services/${serviceId}/deploys`,
-      {
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${apiKey}`,
-        },
-      }
-    );
+    let message = "Here are the details of our recent deployments:\n";
 
-    if (!response.ok) {
-      return c.text(
-        `Error fetching data from Render: ${response.status} - ${response.statusText}`,
-        500
+    const serviceIds = RENDER_SERVICE_IDS?.split(",") || [];
+    for (const serviceId of serviceIds) {
+      // Fetch the service name
+      const serviceNameResponse = await fetch(
+        `https://api.render.com/v1/services/${serviceId}`,
+        {
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${apiKey}`,
+          },
+        }
       );
+
+      if (!serviceNameResponse.ok) {
+        return `Error fetching service name from Render: ${serviceNameResponse.status} - ${serviceNameResponse.statusText}`;
+      }
+
+      const serviceNameData = await serviceNameResponse.json();
+      const serviceName = serviceNameData.name;
+
+      // Fetch the last deployment for the service
+      const deploymentResponse = await fetch(
+        `https://api.render.com/v1/services/${serviceId}/deploys`,
+        {
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${apiKey}`,
+          },
+        }
+      );
+
+      if (!deploymentResponse.ok) {
+        return `Error fetching deployment data from Render: ${deploymentResponse.status} - ${deploymentResponse.statusText}`;
+      }
+
+      const deploymentData = await deploymentResponse.json();
+      const lastDeployment = deploymentData[0].deploy;
+
+      message += `• Service: *${serviceName}* was last deployed on *${new Date(
+        lastDeployment.finishedAt
+      ).toLocaleString("en-US", {
+        weekday: "long",
+        year: "numeric",
+        month: "long",
+        day: "numeric",
+        hour: "numeric",
+        minute: "numeric",
+        second: "numeric",
+        timeZone: "Asia/Manila",
+      })}*.\n`;
     }
-
-    const data = await response.json();
-
-    // Process the data and convert it to a human-readable format
-    const lastDeployment = data[0].deploy;
-    const message = `The last deployment of our app was on ${new Date(
-      lastDeployment.finishedAt
-    ).toLocaleString("en-US", {
-      weekday: "long",
-      year: "numeric",
-      month: "long",
-      day: "numeric",
-      hour: "numeric",
-      minute: "numeric",
-      second: "numeric",
-      timeZone: "Asia/Manila",
-    })}.`;
 
     return message;
   } catch (error) {
