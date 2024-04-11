@@ -9,7 +9,8 @@ export const handler = async (event, context) => {
   if (intent.name === "GetLastDeployment") {
     try {
       // Make a request to the Cloudflare Worker
-      const response = await fetchLastDeployment();
+      const environment = intent.slots.environment;
+      const response = await fetchLastDeployment(environment);
 
       // Prepare the response for Lex
       const responseData = {
@@ -89,10 +90,13 @@ export const handler = async (event, context) => {
   }
 };
 
-async function fetchLastDeployment() {
+async function fetchLastDeployment(environment) {
   try {
+    const environmentQueryParam = `?environment=${encodeURIComponent(
+      environment
+    )}`;
     const response = await fetch(
-      "https://infra-bot.nextfinancial.workers.dev/api/getLastDeployment"
+      `https://infra-bot.nextfinancial.workers.dev/api/getLastDeployment${environmentQueryParam}`
     );
     const data = await response.json();
     return { message: data.response };
