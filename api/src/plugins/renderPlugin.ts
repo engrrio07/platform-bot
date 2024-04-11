@@ -1,6 +1,7 @@
 export const renderPlugin = async (
   RENDER_SERVICE_IDS: string[],
-  RENDER_API_KEY: string
+  RENDER_API_KEY: string,
+  ENVIRONMENT: string
 ) => {
   if (!RENDER_API_KEY || !RENDER_SERVICE_IDS || !RENDER_SERVICE_IDS.length)
     return "Missing Render API key or service IDs.";
@@ -28,6 +29,20 @@ export const renderPlugin = async (
 
       const serviceNameData = await serviceNameResponse.json();
       const serviceName = serviceNameData.name;
+
+      if (ENVIRONMENT === "staging" && serviceName !== "frontend-staging") {
+        continue;
+      } else if (
+        (ENVIRONMENT === "production" || ENVIRONMENT === "prod") &&
+        serviceName !== "frontend-production"
+      ) {
+        continue;
+      } else if (
+        ENVIRONMENT === "sandbox" &&
+        serviceName !== "frontend-sandbox"
+      ) {
+        continue;
+      }
 
       // Fetch the last deployment for the service
       const deploymentResponse = await fetch(
