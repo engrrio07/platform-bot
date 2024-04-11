@@ -14,11 +14,11 @@ api.get("/getLastDeployment", async (c) => {
 
   if (
     !environment ||
-    !["staging", "sandbox", "production"].includes(environment)
+    !["staging", "sandbox", "production", "prod"].includes(environment)
   ) {
     return c.json({
-      message:
-        "Missing environment. Must be one of staging, sandbox or production.",
+      response:
+        "Environment invalid. Must be one of staging, sandbox or production.",
     });
   }
 
@@ -40,7 +40,7 @@ api.get("/getLastDeployment", async (c) => {
     "Here are the details of our recent deployments:\n",
     ""
   );
-  const combinedResponse = renderResponse + "\n" + argoResponseCleaned;
+  const combinedResponse = renderResponse + argoResponseCleaned;
   return c.json({ response: combinedResponse });
 });
 

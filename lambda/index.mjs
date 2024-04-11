@@ -9,7 +9,7 @@ export const handler = async (event, context) => {
   if (intent.name === "GetLastDeployment") {
     try {
       // Make a request to the Cloudflare Worker
-      const environment = intent.slots.environment;
+      const environment = intent.slots.environment.value.interpretedValue;
       const response = await fetchLastDeployment(environment);
 
       // Prepare the response for Lex
